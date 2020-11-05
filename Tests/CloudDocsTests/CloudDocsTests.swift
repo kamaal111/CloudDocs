@@ -1,5 +1,5 @@
 import XCTest
-@testable import ICloudDocs
+@testable import CloudDocs
 
 final class ICloudDocsTests: XCTestCase {
     func testExample() {
