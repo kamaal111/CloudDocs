@@ -20,9 +20,9 @@ public struct ICloudDocs {
 
 public extension ICloudDocs {
     func replaceFile<Content: Encodable>(fileName: String,
-                                                fileExtension: String? = nil,
-                                                content: Content,
-                                                completion: @escaping (_ success: Bool, _ error: Error?) -> Void) {
+                                         fileExtension: String? = nil,
+                                         content: Content,
+                                         completion: @escaping (_ success: Bool, _ error: Error?) -> Void) {
         createFile(fileName: fileName,
                    fileExtension: fileExtension,
                    content: content,
@@ -31,8 +31,8 @@ public extension ICloudDocs {
     }
 
     func removeFile(fileName: String,
-                           fileExtension: String? = nil,
-                           completion: @escaping (_ success: Bool, _ error: Error?) -> Void) {
+                    fileExtension: String? = nil,
+                    completion: @escaping (_ success: Bool, _ error: Error?) -> Void) {
         DispatchQueue.global().async { [self] in
             guard let cloudDocumentContainerUrl = fileManager.cloudDocumentContainerUrl else { return }
             do {
@@ -54,8 +54,8 @@ public extension ICloudDocs {
     }
 
     func readFile<File: Decodable>(fileName: String,
-                                          fileExtension: String? = nil,
-                                          completion: @escaping (_ file: File?, _ error: Error?) -> Void) {
+                                   fileExtension: String? = nil,
+                                   completion: @escaping (_ file: File?, _ error: Error?) -> Void) {
         DispatchQueue.global().async { [self] in
             guard let cloudDocumentContainerUrl = fileManager.cloudDocumentContainerUrl else { return }
             do {
@@ -80,10 +80,10 @@ public extension ICloudDocs {
     }
 
     func createFile<Content: Encodable>(fileName: String,
-                                               fileExtension: String? = nil,
-                                               content: Content,
-                                               force: Bool = false,
-                                               completion: @escaping (_ success: Bool, _ error: Error?) -> Void) {
+                                        fileExtension: String? = nil,
+                                        content: Content,
+                                        force: Bool = false,
+                                        completion: @escaping (_ success: Bool, _ error: Error?) -> Void) {
         DispatchQueue.global().async { [self] in
             guard let cloudDocumentContainerUrl = fileManager.cloudDocumentContainerUrl else { return }
             createFolderIfNotExists(from: cloudDocumentContainerUrl) { (error: Error?) in
