@@ -1,5 +1,5 @@
 //
-//  ICloudDocs.swift
+//  CloudDocs.swift
 //
 //
 //  Created by Kamaal Farah on 05/11/2020.
@@ -7,18 +7,18 @@
 
 import Foundation
 
-public struct ICloudDocs {
+public struct CloudDocs {
     private let fileManager = FileManager.default
 
     public init() { }
 
-    public enum ICloudDocsError: Error {
+    public enum CloudDocsError: Error {
         case fileAllreadyExists
         case fileNotFound
     }
 }
 
-public extension ICloudDocs {
+public extension CloudDocs {
     func replaceFile<Content: Encodable>(fileName: String,
                                          fileExtension: String? = nil,
                                          content: Content,
@@ -44,7 +44,7 @@ public extension ICloudDocs {
                     try fileManager.removeItem(at: fileURL)
                     completion(true, nil)
                 } else {
-                    completion(false, ICloudDocsError.fileNotFound)
+                    completion(false, CloudDocsError.fileNotFound)
                     return
                 }
             } catch {
@@ -69,7 +69,7 @@ public extension ICloudDocs {
                     completion(jsonResult, nil)
                     return
                 } else {
-                    completion(nil, ICloudDocsError.fileNotFound)
+                    completion(nil, CloudDocsError.fileNotFound)
                     return
                 }
             } catch {
@@ -104,7 +104,7 @@ public extension ICloudDocs {
                                                              contents: encodedContent, attributes: nil)
                         completion(created, nil)
                     } else {
-                        completion(false, ICloudDocsError.fileAllreadyExists)
+                        completion(false, CloudDocsError.fileAllreadyExists)
                     }
                 } catch {
                     completion(false, error)
@@ -114,7 +114,7 @@ public extension ICloudDocs {
     }
 }
 
-extension ICloudDocs.ICloudDocsError: LocalizedError {
+extension CloudDocs.CloudDocsError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .fileAllreadyExists:
@@ -125,7 +125,7 @@ extension ICloudDocs.ICloudDocsError: LocalizedError {
     }
 }
 
-internal extension ICloudDocs {
+internal extension CloudDocs {
     func createFolderIfNotExists(from url: URL, completion: @escaping (_ error: Error?) -> Void) {
         if fileManager.fileExists(atPath: url.path, isDirectory: nil) {
             completion(nil)

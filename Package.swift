@@ -4,19 +4,19 @@
 import PackageDescription
 
 let package = Package(
-    name: "ICloudDocs",
+    name: "CloudDocs",
     products: [
         .library(
-            name: "ICloudDocs",
-            targets: ["ICloudDocs"]),
+            name: "CloudDocs",
+            targets: ["CloudDocs"]),
     ],
     dependencies: [],
     targets: [
         .target(
-            name: "ICloudDocs",
+            name: "CloudDocs",
             dependencies: []),
         .testTarget(
-            name: "ICloudDocsTests",
-            dependencies: ["ICloudDocs"]),
+            name: "CloudDocsTests",
+            dependencies: ["CloudDocs"]),
     ]
 )
