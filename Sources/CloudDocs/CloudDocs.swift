@@ -15,6 +15,7 @@ public struct CloudDocs {
     public enum CloudDocsError: Error {
         case fileAllreadyExists
         case fileNotFound
+        case cloudDocumentFolderNotFound
     }
 }
 
@@ -34,7 +35,10 @@ public extension CloudDocs {
                     fileExtension: String? = nil,
                     completion: @escaping (_ success: Bool, _ error: Error?) -> Void) {
         DispatchQueue.global().async { [self] in
-            guard let cloudDocumentContainerUrl = fileManager.cloudDocumentContainerUrl else { return }
+            guard let cloudDocumentContainerUrl = fileManager.cloudDocumentContainerUrl else {
+                completion(false, CloudDocsError.cloudDocumentFolderNotFound)
+                return
+            }
             do {
                 let urls = try fileManager.contentsOfDirectory(at: cloudDocumentContainerUrl,
                                                                includingPropertiesForKeys: nil,
@@ -57,7 +61,10 @@ public extension CloudDocs {
                                    fileExtension: String? = nil,
                                    completion: @escaping (_ file: File?, _ error: Error?) -> Void) {
         DispatchQueue.global().async { [self] in
-            guard let cloudDocumentContainerUrl = fileManager.cloudDocumentContainerUrl else { return }
+            guard let cloudDocumentContainerUrl = fileManager.cloudDocumentContainerUrl else {
+                completion(nil, CloudDocsError.cloudDocumentFolderNotFound)
+                return
+            }
             do {
                 let urls = try fileManager.contentsOfDirectory(at: cloudDocumentContainerUrl,
                                                                includingPropertiesForKeys: nil,
@@ -85,7 +92,10 @@ public extension CloudDocs {
                                         force: Bool = false,
                                         completion: @escaping (_ success: Bool, _ error: Error?) -> Void) {
         DispatchQueue.global().async { [self] in
-            guard let cloudDocumentContainerUrl = fileManager.cloudDocumentContainerUrl else { return }
+            guard let cloudDocumentContainerUrl = fileManager.cloudDocumentContainerUrl else {
+                completion(false, CloudDocsError.cloudDocumentFolderNotFound)
+                return
+            }
             createFolderIfNotExists(from: cloudDocumentContainerUrl) { (error: Error?) in
                 if let error = error {
                     completion(false, error)
@@ -121,6 +131,8 @@ extension CloudDocs.CloudDocsError: LocalizedError {
             return NSLocalizedString("File allready exists", comment: "")
         case .fileNotFound:
             return NSLocalizedString("Given file path could not be found", comment: "")
+        case .cloudDocumentFolderNotFound:
+            return NSLocalizedString("Could not find cloud document folder", comment: "")
         }
     }
 }
