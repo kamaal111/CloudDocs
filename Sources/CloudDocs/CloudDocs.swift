@@ -8,9 +8,11 @@
 import Foundation
 
 public struct CloudDocs {
-    private let fileManager = FileManager.default
+    private let fileManager: FileManager
 
-    public init() { }
+    public init(fileManager: FileManager = FileManager.default) {
+        self.fileManager = fileManager
+    }
 
     public enum CloudDocsError: Error {
         case fileAllreadyExists

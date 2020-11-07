@@ -2,14 +2,54 @@ import XCTest
 @testable import CloudDocs
 
 final class ICloudDocsTests: XCTestCase {
+
+    override func setUpWithError() throws {
+        continueAfterFailure = false
+    }
+
+    override func tearDownWithError() throws { }
+
     func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
         XCTAssertEqual(true, true)
     }
 
     static var allTests = [
         ("testExample", testExample),
     ]
+}
+
+class MockFileManager: FileManager {
+    let containerURL: URL
+
+    init(containerURL: URL, dirExists: Bool) {
+        self.containerURL = containerURL
+    }
+    
+    override func createFile(atPath path: String, contents data: Data?, attributes attr: [FileAttributeKey : Any]? = nil) -> Bool {
+        return true
+    }
+
+    override func url(forUbiquityContainerIdentifier containerIdentifier: String?) -> URL? {
+        return containerURL
+    }
+
+    override func contentsOfDirectory(at url: URL, includingPropertiesForKeys keys: [URLResourceKey]?, options mask: FileManager.DirectoryEnumerationOptions = []) throws -> [URL] {
+        return _contentsOfDirectory(url: url)
+    }
+
+    override func createDirectory(at url: URL, withIntermediateDirectories createIntermediates: Bool, attributes: [FileAttributeKey : Any]? = nil) throws {
+        return
+    }
+
+    override func fileExists(atPath path: String, isDirectory: UnsafeMutablePointer<ObjCBool>?) -> Bool {
+        return true
+    }
+
+    override func removeItem(at URL: URL) throws {
+        return
+    }
+
+    func _contentsOfDirectory(url: URL) -> [URL] {
+        return [0..<5].map { containerURL.appendFile(name: "file-\($0)", fileExtension: "cloudy") }
+    }
 }
