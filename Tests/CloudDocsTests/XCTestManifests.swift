@@ -4,6 +4,7 @@ import XCTest
 public func allTests() -> [XCTestCaseEntry] {
     return [
         testCase(ICloudDocsTests.allTests),
+        testCase(MockFileManagerTests.allTests),
     ]
 }
 #endif
