@@ -24,16 +24,16 @@ public extension CloudDocs {
     func replaceFile<Content: Encodable>(fileName: String,
                                          fileExtension: String? = nil,
                                          content: Content) throws -> Bool {
-        return try createFile(fileName: fileName, fileExtension: fileExtension, content: content, force: true)
+        try _createFile(fileName: fileName, fileExtension: fileExtension, content: content, force: true)
     }
 
     func removeFile(fileName: String, fileExtension: String? = nil) throws -> Bool {
         guard let cloudDocumentContainerUrl = fileManager.cloudDocumentContainerUrl else {
             throw CloudDocsError.cloudDocumentFolderNotFound
         }
-        let urls = try _listAllFileURLs(from: cloudDocumentContainerUrl)
         let fileURL = cloudDocumentContainerUrl.appendFile(name: fileName, fileExtension: fileExtension)
-        guard urls.contains(fileURL) else { throw CloudDocsError.fileNotFound }
+        let fileExistsInDirectory = try _checkIfFileExists(in: cloudDocumentContainerUrl, fileURL: fileURL)
+        guard fileExistsInDirectory else { throw CloudDocsError.fileNotFound }
         try fileManager.removeItem(at: fileURL)
         return true
     }
@@ -42,9 +42,9 @@ public extension CloudDocs {
         guard let cloudDocumentContainerUrl = fileManager.cloudDocumentContainerUrl else {
             throw CloudDocsError.cloudDocumentFolderNotFound
         }
-        let urls = try _listAllFileURLs(from: cloudDocumentContainerUrl)
         let fileURL = cloudDocumentContainerUrl.appendFile(name: fileName, fileExtension: fileExtension)
-        guard urls.contains(fileURL) else { throw CloudDocsError.fileNotFound }
+        let fileExistsInDirectory = try _checkIfFileExists(in: cloudDocumentContainerUrl, fileURL: fileURL)
+        guard fileExistsInDirectory else { throw CloudDocsError.fileNotFound }
         let data = try Data(contentsOf: URL(fileURLWithPath: fileURL.path), options: .mappedIfSafe)
         let jsonResult = try JSONDecoder().decode(File.self, from: data)
         return jsonResult
@@ -52,28 +52,17 @@ public extension CloudDocs {
 
     func createFile<Content: Encodable>(fileName: String,
                                         fileExtension: String? = nil,
-                                        content: Content,
-                                        force: Bool = false) throws -> Bool {
+                                        content: Content) throws -> Bool {
+        try _createFile(fileName: fileName, fileExtension: fileExtension, content: content, force: false)
+    }
+
+    func checkIfFileExists(fileName: String, fileExtension: String? = nil) throws -> Bool {
         guard let cloudDocumentContainerUrl = fileManager.cloudDocumentContainerUrl else {
             throw CloudDocsError.cloudDocumentFolderNotFound
         }
-        let urls = try _listAllFileURLs(from: cloudDocumentContainerUrl)
         let fileURL = cloudDocumentContainerUrl.appendFile(name: fileName, fileExtension: fileExtension)
-        guard !urls.contains(fileURL) || force else { throw CloudDocsError.fileAllreadyExists }
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .prettyPrinted
-        let encodedContent = try encoder.encode(content)
-        let created = fileManager.createFile(atPath: fileURL.path,
-                                             contents: encodedContent, attributes: nil)
-        return created
+        return try _checkIfFileExists(in: cloudDocumentContainerUrl, fileURL: fileURL)
     }
-
-//    func checkIfFileExists(fileName: String, fileExtension: String? = nil) -> Bool {
-//        guard let cloudDocumentContainerUrl = fileManager.cloudDocumentContainerUrl else {
-//            return false
-//        }
-//        return false
-//    }
 
     func listAllFileURLs() throws -> [URL] {
         guard let cloudDocumentContainerUrl = fileManager.cloudDocumentContainerUrl else {
@@ -112,6 +101,29 @@ internal extension CloudDocs {
             let urls = try fileManager.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: [])
             return urls
         }
+    }
+
+    func _checkIfFileExists(in directory: URL, fileURL: URL, fileExtension: String? = nil) throws -> Bool {
+        let urls = try _listAllFileURLs(from: directory)
+        return urls.contains(fileURL)
+    }
+
+    func _createFile<Content: Encodable>(fileName: String,
+                                        fileExtension: String?,
+                                        content: Content,
+                                        force: Bool) throws -> Bool {
+        guard let cloudDocumentContainerUrl = fileManager.cloudDocumentContainerUrl else {
+            throw CloudDocsError.cloudDocumentFolderNotFound
+        }
+        let fileURL = cloudDocumentContainerUrl.appendFile(name: fileName, fileExtension: fileExtension)
+        let fileExistsInDirectory = try _checkIfFileExists(in: cloudDocumentContainerUrl, fileURL: fileURL)
+        guard !fileExistsInDirectory || force else { throw CloudDocsError.fileAllreadyExists }
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+        let encodedContent = try encoder.encode(content)
+        let created = fileManager.createFile(atPath: fileURL.path,
+                                             contents: encodedContent, attributes: nil)
+        return created
     }
 }
 
