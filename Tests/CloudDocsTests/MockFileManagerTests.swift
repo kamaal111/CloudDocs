@@ -34,12 +34,13 @@ final class MockFileManagerTests: XCTestCase {
 }
 
 class MockFileManager: FileManager {
-    let containerURL: URL?
+    var containerURL: URL?
+    var content: [URL] = []
 
     init(containerURL: URL?) {
         self.containerURL = containerURL
     }
-    
+
     override func createFile(atPath path: String, contents data: Data?, attributes attr: [FileAttributeKey : Any]? = nil) -> Bool {
         return true
     }
@@ -49,7 +50,8 @@ class MockFileManager: FileManager {
     }
 
     override func contentsOfDirectory(at url: URL, includingPropertiesForKeys keys: [URLResourceKey]?, options mask: FileManager.DirectoryEnumerationOptions = []) throws -> [URL] {
-        return _contentsOfDirectory(url: url)
+        print(url)
+        return content
     }
 
     override func createDirectory(at url: URL, withIntermediateDirectories createIntermediates: Bool, attributes: [FileAttributeKey : Any]? = nil) throws {
@@ -57,14 +59,14 @@ class MockFileManager: FileManager {
     }
 
     override func fileExists(atPath path: String, isDirectory: UnsafeMutablePointer<ObjCBool>?) -> Bool {
-        return true
+        return path == containerURL?.appendingPathComponent("Documents").path
     }
 
     override func removeItem(at URL: URL) throws {
         return
     }
 
-    func _contentsOfDirectory(url: URL) -> [URL] {
-        return [0..<5].map { url.appendFile(name: "file-\($0)", fileExtension: "cloudy") }
+    func addContentToDirectory(url: URL) {
+        content.append(url)
     }
 }
