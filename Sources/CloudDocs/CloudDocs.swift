@@ -8,15 +8,22 @@
 import Foundation
 
 public struct CloudDocs {
-    private let fileManager = FileManager.default
+    private let fileManager: FileManager
 
-    public init() { }
+    public init(fileManager: FileManager = FileManager.default) {
+        self.fileManager = fileManager
+    }
 
     public enum CloudDocsError: Error {
         case fileAllreadyExists
         case fileNotFound
         case cloudDocumentFolderNotFound
         case urlsNotFound
+    }
+
+    internal enum CreateFolder {
+        case exists
+        case created
     }
 }
 
@@ -88,7 +95,7 @@ extension CloudDocs.CloudDocsError: LocalizedError {
 }
 
 internal extension CloudDocs {
-    func createFolderIfNotExists(from url: URL) throws -> CreateFolder {
+    func createFolderIfNotExists(from url: URL) throws -> CloudDocs.CreateFolder {
         guard !fileManager.fileExists(atPath: url.path, isDirectory: nil) else { return .exists }
         try fileManager.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
         return .created
@@ -124,24 +131,5 @@ internal extension CloudDocs {
         let created = fileManager.createFile(atPath: fileURL.path,
                                              contents: encodedContent, attributes: nil)
         return created
-    }
-}
-
-internal enum CreateFolder {
-    case exists
-    case created
-}
-
-internal extension URL {
-    func appendFile(name: String, fileExtension: String? = nil) -> URL {
-        let fileUrl = self.appendingPathComponent(name)
-        guard let fileExtension = fileExtension else { return fileUrl }
-        return fileUrl.appendingPathExtension(fileExtension)
-    }
-}
-
-internal extension FileManager {
-    var cloudDocumentContainerUrl: URL? {
-        self.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent("Documents")
     }
 }
